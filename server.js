@@ -13,8 +13,7 @@ const {
   calculateKPIs
 } = require('./utils/calculations');
 const { generatePDF } = require('./utils/pdf-generator');
-// If PPTX export is enabled, keep this. If you removed pptxgenjs, comment it out.
-const { generatePPTX } = require('./utils/pptx-generator');
+// PPTX export disabled for now – no require here
 const { generateProjectSummary } = require('./utils/gemini-client');
 
 const app = express();
@@ -101,7 +100,7 @@ app.post('/api/upload', upload.single('file'), async (req, res) => {
     const kpis = calculateKPIs(projectData);
     const earnedValue = calculateEarnedValue(projectData);
 
-    // Keep last project in memory (simple single-user case)
+    // Store last project in memory (single-user)
     global.lastProjectData = projectData;
     global.lastProjectKPIs = kpis;
     global.lastProjectEV = earnedValue;
@@ -124,7 +123,7 @@ app.post('/api/upload', upload.single('file'), async (req, res) => {
       resources: projectData.resources || []
     });
 
-    // cleanup uploaded file
+    // cleanup
     setTimeout(() => {
       fs.unlink(filePath).catch(err =>
         console.error('Failed to delete temp file:', err)
@@ -207,46 +206,11 @@ app.post('/api/export/pdf', async (req, res) => {
   }
 });
 
-// Export PPTX (with Gemini summary) – disable this route if PPTX not configured
-app.post('/api/export/pptx', async (req, res) => {
-  try {
-    const { projectData, dateRange } = req.body;
-
-    if (!projectData && !global.lastProjectData) {
-      return res.status(400).json({ error: 'No project data provided' });
-    }
-
-    const data = projectData || global.lastProjectData;
-    const kpis = global.lastProjectKPIs || calculateKPIs(data);
-
-    let executiveSummary = '';
-    try {
-      executiveSummary = await generateProjectSummary(data, kpis);
-    } catch (aiError) {
-      console.error('Gemini summary error (PPTX):', aiError.message);
-      executiveSummary = '';
-    }
-
-    const pptxPath = await generatePPTX(
-      { ...data, executiveSummary, kpis },
-      dateRange,
-      TEMP_DIR
-    );
-
-    res.download(
-      pptxPath,
-      `${data.project_name || 'presentation'}.pptx`,
-      err => {
-        if (err) console.error('Download error:', err);
-        fs.unlink(pptxPath).catch(e => console.error('Cleanup error:', e));
-      }
-    );
-  } catch (error) {
-    console.error('PPTX export error:', error);
-    res
-      .status(500)
-      .json({ error: error.message || 'PowerPoint generation failed' });
-  }
+// PPTX export disabled – keep route stub so frontend can be updated later
+app.post('/api/export/pptx', (req, res) => {
+  return res
+    .status(503)
+    .json({ error: 'PPTX export is temporarily disabled on this server.' });
 });
 
 // Error handler
