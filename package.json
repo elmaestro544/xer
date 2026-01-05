@@ -1,7 +1,7 @@
 {
   "name": "xer-dashboard",
   "version": "1.0.0",
-  "description": "XER file parser and dashboard analysis tool with PDF/PPT export",
+  "description": "XER file parser and dashboard analysis tool with PDF export and Gemini summaries",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
@@ -20,17 +20,17 @@
   "author": "Your Name",
   "license": "MIT",
   "dependencies": {
-    "express": "^4.18.2",
-    "multer": "^1.4.5-lts.1",
-    "dotenv": "^16.3.1",
-    "pdfkit": "^0.13.0",
-    "chart.js": "^4.4.0",
-    "chartjs-to-image": "^1.0.2",
-    "xer-parser": "^2.1.0",
     "axios": "^1.6.2",
+    "chart.js": "^4.4.0",
     "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
     "helmet": "^7.1.0",
-    "morgan": "^1.10.0"
+    "morgan": "^1.10.0",
+    "multer": "^1.4.5-lts.1",
+    "node-fetch": "^2.7.0",
+    "pdfkit": "^0.13.0",
+    "xer-parser": "^2.1.0"
   },
   "devDependencies": {
     "nodemon": "^3.0.1"
