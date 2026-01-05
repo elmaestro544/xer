@@ -56,5 +56,11 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
   CMD node -e "require('http').get('http://localhost:' + (process.env.PORT || 3000) + '/api/health', (r) => {if (r.statusCode !== 200) throw new Error(r.statusCode)})"
 
 EXPOSE 80
+# Add Traefik labels directly in Dockerfile
+LABEL traefik.enable="true"
+LABEL traefik.http.routers.xer.rule="Host(`xer.roadmap.casa`)"
+LABEL traefik.http.routers.xer.entrypoints="websecure"
+LABEL traefik.http.routers.xer.tls.certresolver="letsencrypt"
+LABEL traefik.http.services.xer.loadbalancer.server.port="3000"
 
 CMD ["dumb-init", "node", "server.js"]
