@@ -43,7 +43,7 @@ function setupEventListeners() {
 
   // Export buttons
   exportPDF.addEventListener('click', () => exportFile('pdf'));
-  exportPPTX.addEventListener('click', () => exportFile('pptx'));
+  // exportPPTX.addEventListener('click', () => exportFile('pptx'));
 
   // Date filters
   document.getElementById('applyDates').addEventListener('click', applyDateFilter);
