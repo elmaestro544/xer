@@ -6,14 +6,16 @@ const fs = require('fs').promises;
 const helmet = require('helmet');
 const cors = require('cors');
 const morgan = require('morgan');
+
 const XERParser = require('./parsers/xer-parser');
 const {
   calculateEarnedValue,
   calculateKPIs
 } = require('./utils/calculations');
 const { generatePDF } = require('./utils/pdf-generator');
-// const { generatePPTX } = require('./utils/pptx-generator');
-const { generateProjectSummary } = require('./utils/gemini-client'); // NEW
+// If PPTX export is enabled, keep this. If you removed pptxgenjs, comment it out.
+const { generatePPTX } = require('./utils/pptx-generator');
+const { generateProjectSummary } = require('./utils/gemini-client');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -74,7 +76,9 @@ async function initializeDirectories() {
 
 // Health check
 app.get('/api/health', (req, res) => {
-  res.status(200).json({ status: 'healthy', timestamp: new Date().toISOString() });
+  res
+    .status(200)
+    .json({ status: 'healthy', timestamp: new Date().toISOString() });
 });
 
 // Upload + parse XER
@@ -120,7 +124,7 @@ app.post('/api/upload', upload.single('file'), async (req, res) => {
       resources: projectData.resources || []
     });
 
-    // cleanup
+    // cleanup uploaded file
     setTimeout(() => {
       fs.unlink(filePath).catch(err =>
         console.error('Failed to delete temp file:', err)
@@ -132,7 +136,7 @@ app.post('/api/upload', upload.single('file'), async (req, res) => {
   }
 });
 
-// Get project
+// Get current project
 app.get('/api/project/:id', (req, res) => {
   try {
     if (!global.lastProjectData) {
@@ -163,7 +167,7 @@ app.get('/api/project/:id', (req, res) => {
   }
 });
 
-// Export PDF (now with Gemini summary)
+// Export PDF (with Gemini summary)
 app.post('/api/export/pdf', async (req, res) => {
   try {
     const { projectData, dateRange } = req.body;
@@ -177,7 +181,7 @@ app.post('/api/export/pdf', async (req, res) => {
 
     let executiveSummary = '';
     try {
-  
+      executiveSummary = await generateProjectSummary(data, kpis);
     } catch (aiError) {
       console.error('Gemini summary error (PDF):', aiError.message);
       executiveSummary = '';
@@ -203,8 +207,8 @@ app.post('/api/export/pdf', async (req, res) => {
   }
 });
 
-// Export PPTX (now with Gemini summary)
-// app.post('/api/export/pptx', async (req, res) => {
+// Export PPTX (with Gemini summary) – disable this route if PPTX not configured
+app.post('/api/export/pptx', async (req, res) => {
   try {
     const { projectData, dateRange } = req.body;
 
@@ -239,7 +243,9 @@ app.post('/api/export/pdf', async (req, res) => {
     );
   } catch (error) {
     console.error('PPTX export error:', error);
-    res.status(500).json({ error: error.message || 'PowerPoint generation failed' });
+    res
+      .status(500)
+      .json({ error: error.message || 'PowerPoint generation failed' });
   }
 });
 
@@ -260,12 +266,12 @@ app.use((err, req, res, next) => {
   });
 });
 
-// 404
+// 404 handler
 app.use((req, res) => {
   res.status(404).json({ error: 'Endpoint not found' });
 });
 
-// Start
+// Start server
 async function start() {
   try {
     await initializeDirectories();
