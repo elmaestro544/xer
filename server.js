@@ -177,7 +177,7 @@ app.post('/api/export/pdf', async (req, res) => {
 
     let executiveSummary = '';
     try {
-      executiveSummary = await generateProjectSummary(data, kpis);
+  
     } catch (aiError) {
       console.error('Gemini summary error (PDF):', aiError.message);
       executiveSummary = '';
