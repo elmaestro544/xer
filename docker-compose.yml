@@ -1,0 +1,39 @@
+version: '3.8'
+
+services:
+  xer-dashboard:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=development
+      - PORT=3000
+      - MAX_FILE_SIZE=50MB
+    volumes:
+      - ./uploads:/app/uploads
+      - ./temp:/app/temp
+      - ./server.js:/app/server.js
+      - ./public:/app/public
+      - ./utils:/app/utils
+      - ./parsers:/app/parsers
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Optional: Add a reverse proxy
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - xer-dashboard
+    restart: unless-stopped
