@@ -17,7 +17,7 @@ const { generatePDF } = require('./utils/pdf-generator');
 const { generateProjectSummary } = require('./utils/gemini-client');
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 80;  // CHANGED from 3000 to 80
 const UPLOAD_DIR = path.join(__dirname, 'uploads');
 const TEMP_DIR = path.join(__dirname, 'temp');
 
