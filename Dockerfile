@@ -19,7 +19,6 @@ COPY package*.json ./
 RUN npm install --omit=dev && \
     npm cache clean --force
 
-
 # Production stage
 FROM node:20-alpine
 
