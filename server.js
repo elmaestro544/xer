@@ -12,7 +12,7 @@ const {
   calculateKPIs
 } = require('./utils/calculations');
 const { generatePDF } = require('./utils/pdf-generator');
-const { generatePPTX } = require('./utils/pptx-generator');
+// const { generatePPTX } = require('./utils/pptx-generator');
 const { generateProjectSummary } = require('./utils/gemini-client'); // NEW
 
 const app = express();
@@ -204,7 +204,7 @@ app.post('/api/export/pdf', async (req, res) => {
 });
 
 // Export PPTX (now with Gemini summary)
-app.post('/api/export/pptx', async (req, res) => {
+// app.post('/api/export/pptx', async (req, res) => {
   try {
     const { projectData, dateRange } = req.body;
 
