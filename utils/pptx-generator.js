@@ -3,7 +3,7 @@
  * Creates static slide presentations from project data
  */
 
-const PptxGenJs = require('pptxgen-js');
+const PptxGenJs = require('pptxgenjs');
 const path = require('path');
 const fs = require('fs').promises;
 const { calculateKPIs, generateActivitySummary } = require('./calculations');
